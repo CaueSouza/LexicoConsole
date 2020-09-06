@@ -11,6 +11,7 @@ namespace LexicoConsole
         private static int cont = 0;
         private static string fullString = "";
         private static List<Token> listaTokens = new List<Token>();
+        private static bool notEOF = true;
 
         static void Main(string[] args)
         {
@@ -51,13 +52,13 @@ namespace LexicoConsole
 
                 caracterAtual = fullString[cont];
 
-                while (cont < fullString.Length)
+                while (notEOF)
                 {
-                    while ((caracterAtual == '{' || caracterAtual == ' ') && cont < fullString.Length)
+                    while ((caracterAtual == '{' || caracterAtual == ' ') && notEOF)
                     {
                         if (caracterAtual == '{')
                         {
-                            while (caracterAtual != '}' && cont < fullString.Length)
+                            while (caracterAtual != '}' && notEOF)
                             {
                                 readCaracter();
                             }
@@ -71,7 +72,7 @@ namespace LexicoConsole
                         }
                     }
 
-                    if (cont < fullString.Length)
+                    if (notEOF)
                     {
                         //listaTokens.Add(readToken());
                         readCaracter();//temporario
@@ -86,8 +87,13 @@ namespace LexicoConsole
 
         private static void readCaracter()
         {
-            cont++;
-            caracterAtual = fullString[cont];
+            if (cont == fullString.Length-1) {
+                notEOF = false;
+            } else
+            {
+                cont++;
+                caracterAtual = fullString[cont];
+            }
         }
 
         private static Token readToken()
