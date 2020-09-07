@@ -74,7 +74,8 @@ namespace LexicoConsole
 
                     if (notEOF)
                     {
-                        //listaTokens.Add(readToken());
+                        Token token = readToken();
+                        listaTokens.Add(token);
                         readCaracter();//temporario
                     }
                 }
@@ -89,16 +90,93 @@ namespace LexicoConsole
         {
             if (cont == fullString.Length-1) {
                 notEOF = false;
-            } else
-            {
+            } else {
                 cont++;
                 caracterAtual = fullString[cont];
             }
         }
 
+        private static bool isDigit()
+        {
+            if (caracterAtual >= 48 && caracterAtual <= 57) return true;
+            else return false;
+        }
+
+        private static bool isLetter()
+        {
+            if ((caracterAtual >= 65 && caracterAtual <= 90) || (caracterAtual >= 97 && caracterAtual <= 122)) return true;
+            else return false;
+        }
+
+        private static bool isAssignment()
+        {
+            if (caracterAtual == ':') return true;
+            else return false;
+        }
+
+        private static bool isArithmetic()
+        {
+            if (caracterAtual == '+' || caracterAtual == '-' || caracterAtual == '*') return true;
+            else return false;
+        }
+
+        private static bool isRelational()
+        {
+            if (caracterAtual == ';' || caracterAtual == ',' || caracterAtual == '(' || caracterAtual == ')' || caracterAtual == '.') return true;
+            else return false;
+        }
+
         private static Token readToken()
         {
-            return null;
+            if (isDigit())
+            {
+                return treatDigit();
+            }
+            else if (isLetter())
+            {
+                return treatIdentifierAndReservedWord();
+            }
+            else if (isAssignment())
+            {
+                return treatAssignment();
+            }
+            else if (isArithmetic())
+            {
+                return treatArithmetic();
+            }
+            else if (isRelational())
+            {
+                return treatRelational();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private static Token treatDigit()
+        {
+            return new Token("teste", "teste");
+        }
+
+        private static Token treatIdentifierAndReservedWord()
+        {
+            return new Token("teste", "teste");
+        }
+
+        private static Token treatAssignment()
+        {
+            return new Token("teste", "teste");
+        }
+
+        private static Token treatArithmetic()
+        {
+            return new Token("teste", "teste");
+        }
+
+        private static Token treatRelational()
+        {
+            return new Token("teste", "teste");
         }
     }
 }
