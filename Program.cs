@@ -26,16 +26,6 @@ namespace LexicoConsole
             string fullPath = filePath + '\\' + fileName;
             Console.WriteLine("Full Path: {0}", fullPath);
 
-            //using (StreamReader sr = File.OpenText(fullPath))
-            //{
-            //    string line;
-            //    while ((line = sr.ReadLine()) != null)
-            //    {
-            //        // Do something with line...
-            //        Console.WriteLine(line);
-            //    }
-            //}
-
             readFile(fullPath);
         }
 
