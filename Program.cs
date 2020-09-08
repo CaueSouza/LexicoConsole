@@ -34,44 +34,67 @@ namespace LexicoConsole
             try
             {
                 string[] lines = File.ReadAllLines(fullPath);
+                int lineCount = 0;
 
                 foreach (string line in lines)
                 {
-                    fullString += " " + line;
-                }
+                    fullString = line;
+                    cont = 0;
+                    notEOF = true;
+                    lineCount++;
 
-                caracterAtual = fullString[cont];
+                    caracterAtual = fullString[cont];
 
-                while (notEOF)
-                {
-                    while ((caracterAtual == '{' || caracterAtual == ' ') && notEOF)
+                    while (notEOF)
                     {
-                        if (caracterAtual == '{')
+                        while ((caracterAtual == '{' || caracterAtual == ' ') && notEOF)
                         {
-                            while (caracterAtual != '}' && notEOF)
+                            if (caracterAtual == '{')
                             {
+                                while (caracterAtual != '}' && notEOF)
+                                {
+                                    readCaracter();
+                                }
+
                                 readCaracter();
                             }
 
-                            readCaracter();
+                            while (caracterAtual == ' ')
+                            {
+                                readCaracter();
+                            }
                         }
 
-                        while (caracterAtual == ' ')
+                        if (notEOF)
                         {
-                            readCaracter();
+                            Token token = readToken();
+                            listaTokens.Add(token);
+
+                            if (token.getIsError())
+                            {
+                                break;
+                            }
                         }
                     }
 
-                    if (notEOF)
+                    Token lastToken = listaTokens[listaTokens.Count-1];
+                    if (lastToken.getIsError())
                     {
-                        Token token = readToken();
-                        listaTokens.Add(token);
+                        break;
                     }
                 }
 
+
                 foreach (Token t in listaTokens)
                 {
-                    Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbolo(), t.getLexema());
+                    if (!t.getIsError())
+                    {
+                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbolo(), t.getLexema());
+                    }
+                    else
+                    {
+                        Console.WriteLine("Erro na linha {0}\n", lineCount);
+                    }
                 }
             }
             catch (IOException e)
@@ -157,7 +180,7 @@ namespace LexicoConsole
             }
             else
             {
-                return null;
+                return new Token("ERRO", "ERRO", true);
             }
         }
 
@@ -273,13 +296,13 @@ namespace LexicoConsole
                         readCaracter();
                         return new Token("sdif", relacional + caracter);
                     }
-                    else return new Token("ERRO", "ERRO");
+                    else return new Token("ERRO", "ERRO", true);
 
                 case "=":
                     return new Token("sig", relacional);
 
                 default:
-                    return new Token("ERRO", "ERRO");
+                    return new Token("ERRO", "ERRO", true);
             }
         }
 
