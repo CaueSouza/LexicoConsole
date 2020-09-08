@@ -42,6 +42,8 @@ namespace LexicoConsole
 
                 caracterAtual = fullString[cont];
 
+                Console.WriteLine("esse {0}", caracterAtual);
+
                 while (notEOF)
                 {
                     while ((caracterAtual == '{' || caracterAtual == ' ') && notEOF)
@@ -68,6 +70,11 @@ namespace LexicoConsole
                         listaTokens.Add(token);
                         readCaracter();//temporario
                     }
+                }
+
+                foreach (Token t in listaTokens)
+                {
+                    Console.WriteLine(t.simbolo + t.lexema );
                 }
             }
             catch (IOException e)
@@ -118,6 +125,8 @@ namespace LexicoConsole
 
         private static Token readToken()
         {
+           
+
             if (isDigit())
             {
                 return treatDigit();
@@ -146,22 +155,22 @@ namespace LexicoConsole
 
         private static Token treatDigit()
         {
-            return new Token("teste", "teste");
+            return new Token("dig1", "dig2");
         }
 
         private static Token treatIdentifierAndReservedWord()
         {
-            return new Token("teste", "teste");
+            return new Token("awd", "awd2");
         }
 
         private static Token treatAssignment()
         {
-            return new Token("teste", "teste");
+            return new Token("bbbbb", "vvvvv");
         }
 
         private static Token treatArithmetic()
         {
-            return new Token("teste", "teste");
+            return new Token("fsdfsdfsdf", "fsdfsdfsfsf");
         }
 
         private static Token treatRelational()

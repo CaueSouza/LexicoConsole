@@ -6,8 +6,8 @@ namespace LexicoConsole
 {
     class Token
     {
-        String simbolo;
-        String lexema;
+        public String simbolo;
+        public String lexema;
 
         public Token(string simbolo, string lexema)
         {
