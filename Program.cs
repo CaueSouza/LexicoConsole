@@ -13,7 +13,7 @@ namespace LexicoConsole
         private static List<Token> listaTokens = new List<Token>();
         private static bool notEOF = true;
 
-        static void Main(string[] args)
+        static void Main()
         {
             string filePath, fileName;
             Console.Write("Informe o caminho do arquivo: ");
@@ -24,7 +24,7 @@ namespace LexicoConsole
             Console.WriteLine("Path: {0}\nName: {1}\n", filePath, fileName);
 
             string fullPath = filePath + '\\' + fileName;
-            Console.WriteLine("Full Path: {0}", fullPath);
+            Console.WriteLine("Full Path: {0}\n", fullPath);
 
             readFile(fullPath);
         }
@@ -66,8 +66,12 @@ namespace LexicoConsole
                     {
                         Token token = readToken();
                         listaTokens.Add(token);
-                        readCaracter();//temporario
                     }
+                }
+
+                foreach (Token t in listaTokens)
+                {
+                    Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbolo(), t.getLexema());
                 }
             }
             catch (IOException e)
@@ -78,9 +82,12 @@ namespace LexicoConsole
 
         private static void readCaracter()
         {
-            if (cont == fullString.Length-1) {
+            if (cont == fullString.Length - 1)
+            {
                 notEOF = false;
-            } else {
+            }
+            else
+            {
                 cont++;
                 caracterAtual = fullString[cont];
             }
@@ -112,6 +119,12 @@ namespace LexicoConsole
 
         private static bool isRelational()
         {
+            if (caracterAtual == '<' || caracterAtual == '>' || caracterAtual == '=' || caracterAtual == '!') return true;
+            else return false;
+        }
+
+        private static bool isPunctuation()
+        {
             if (caracterAtual == ';' || caracterAtual == ',' || caracterAtual == '(' || caracterAtual == ')' || caracterAtual == '.') return true;
             else return false;
         }
@@ -138,6 +151,10 @@ namespace LexicoConsole
             {
                 return treatRelational();
             }
+            else if (isPunctuation())
+            {
+                return treatPunctuation();
+            }
             else
             {
                 return null;
@@ -146,17 +163,79 @@ namespace LexicoConsole
 
         private static Token treatDigit()
         {
-            return new Token("teste", "teste");
+            string num = caracterAtual.ToString();
+            readCaracter();
+
+            while (isDigit() && notEOF)
+            {
+                num += caracterAtual.ToString();
+                readCaracter();
+            }
+
+            return new Token("snumero", num);
         }
 
         private static Token treatIdentifierAndReservedWord()
         {
-            return new Token("teste", "teste");
+            string id = caracterAtual.ToString();
+            readCaracter();
+
+            while ((isLetter() || isDigit() || id.Equals("_")) && notEOF)
+            {
+                id += caracterAtual.ToString();
+                readCaracter();
+            }
+
+            string simbolo;
+
+            switch (id)
+            {
+                case "programa":
+                case "se":
+                case "entao":
+                case "senao":
+                case "enquanto":
+                case "faca":
+                case "inicio":
+                case "fim":
+                case "escreva":
+                case "leia":
+                case "var":
+                case "inteiro":
+                case "booleano":
+                case "verdadeiro":
+                case "falso":
+                case "procedimento":
+                case "funcao":
+                case "div":
+                case "e":
+                case "ou":
+                case "nao":
+                    simbolo = "s" + id;
+                    break;
+                default:
+                    simbolo = "sidentificador";
+                    break;
+            }
+
+            return new Token(simbolo, id);
         }
 
         private static Token treatAssignment()
         {
-            return new Token("teste", "teste");
+            string assignment = caracterAtual.ToString();
+            readCaracter();
+
+            if (assignment.Equals("="))
+            {
+                string caracter = caracterAtual.ToString();
+                readCaracter();
+                return new Token("satribuicao", assignment + caracter);
+            }
+            else
+            {
+                return new Token("sdoispontos", assignment);
+            }
         }
 
         private static Token treatArithmetic()
@@ -166,7 +245,70 @@ namespace LexicoConsole
 
         private static Token treatRelational()
         {
-            return new Token("teste", "teste");
+            string relacional = caracterAtual.ToString();
+            readCaracter();
+            string caracter = caracterAtual.ToString();
+
+            switch (relacional)
+            {
+                case "<":
+                    if (caracterAtual.Equals("="))
+                    {
+                        readCaracter();
+                        return new Token("smenorig", relacional + caracter);
+                    } 
+                    else return new Token("smenor", relacional);
+
+                case ">":
+                    if (caracterAtual.Equals("="))
+                    {
+                        readCaracter();
+                        return new Token("smaiorig", relacional + caracter);
+                    }
+                    else return new Token("smaior", relacional);
+
+                case "!":
+                    if (caracterAtual.Equals("="))
+                    {
+                        readCaracter();
+                        return new Token("sdif", relacional + caracter);
+                    }
+                    else return new Token("ERRO", "ERRO");
+
+                case "=":
+                    return new Token("sig", relacional);
+
+                default:
+                    return new Token("ERRO", "ERRO");
+            }
+        }
+
+        private static Token treatPunctuation()
+        {
+            string punctuation = caracterAtual.ToString();
+            string simbolo = "";
+
+            switch (punctuation)
+            {
+                case ";":
+                    simbolo = "sponto_virgula";
+                    break;
+                case ",":
+                    simbolo = "svirgula";
+                    break;
+                case ".":
+                    simbolo = "sponto";
+                    break;
+                case "(":
+                    simbolo = "sabre_parenteses";
+                    break;
+                case ")":
+                    simbolo = "sfecha_parenteses";
+                    break;
+            }
+
+            readCaracter();
+            return new Token(simbolo, punctuation);
         }
     }
 }
