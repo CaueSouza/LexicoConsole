@@ -249,7 +249,7 @@ namespace LexicoConsole
             string assignment = caracterAtual.ToString();
             readCaracter();
 
-            if (assignment.Equals("="))
+            if (caracterAtual.ToString().Equals("="))
             {
                 string caracter = caracterAtual.ToString();
                 readCaracter();
@@ -263,7 +263,20 @@ namespace LexicoConsole
 
         private static Token treatArithmetic()
         {
-            return new Token("teste", "teste");
+            string aritmetico = caracterAtual.ToString();
+            readCaracter();
+
+            switch (aritmetico)
+            {
+                case "+":
+                    return new Token("smais", aritmetico);
+                case "-":
+                    return new Token("smenos", aritmetico);
+                case "*":
+                    return new Token("smult", aritmetico);
+                default:
+                    return new Token("ERROR", "ERROR", true);
+            }
         }
 
         private static Token treatRelational()
