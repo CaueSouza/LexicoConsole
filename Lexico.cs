@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 
 namespace LexicoConsole
@@ -7,7 +8,8 @@ namespace LexicoConsole
     class Lexico
     {
         private static char actualChar = ' ';
-        private static int count = 0;
+        private static int count = -1;
+        private static int lineCount;
         private static string fullString = "";
         private static List<Token> tokenList = new List<Token>();
         private static bool notEOF = true;
@@ -22,22 +24,107 @@ namespace LexicoConsole
         {
             try
             {
-                string[] lines = fileReader.readFile();
+                fullString = fileReader.readFile();
 
-                int lineCount = 0;
+                lineCount = 1;
 
-                foreach (string line in lines)
+                readCaracter();
+
+                while (notEOF)
+                {
+                    while ((actualChar == '{' || actualChar == ' ' || actualChar == '/') && notEOF)
+                    {
+                        if (actualChar == '{')
+                        {
+                            while (actualChar != '}' && notEOF)
+                            {
+                                readCaracter();
+                            }
+
+                            readCaracter();
+                        }
+
+
+                        if (actualChar == '/' && notEOF)
+                        {
+                            readCaracter();
+                            if (actualChar == '*' && notEOF)
+                            {
+                                readCaracter();
+                                bool endedComment = true;
+
+                                while (endedComment && notEOF)
+                                {
+                                    while (actualChar != '*' && notEOF)
+                                    {
+                                        readCaracter();
+                                    }
+
+                                    readCaracter();
+                                    if (actualChar == '/')
+                                    {
+                                        readCaracter();
+                                        endedComment = false;
+                                    }
+                                    else
+                                    {
+                                        readCaracter();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                notEOF = false;
+                                tokenList.Add(new Token("ERRO", "ERRO", true));
+                            }
+                        }
+
+
+                        while (actualChar == ' ' && notEOF)
+                        {
+                            readCaracter();
+                        }
+                    }
+
+                    if (notEOF)
+                    {
+                        Token token = readToken();
+                        tokenList.Add(token);
+
+                        if (token.getIsError())
+                        {
+                            break;
+                        }
+                    }
+                }
+
+
+                foreach (Token t in tokenList)
+                {
+                    if (!t.getIsError())
+                    {
+                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbol(), t.getLexem());
+                    }
+                    else
+                    {
+                        Console.WriteLine("Erro na linha {0}\n", lineCount);
+                    }
+                }
+
+                /*foreach (string line in lines)
                 {
                     fullString = line;
-                    count = 0;
+                    
                     notEOF = true;
                     lineCount++;
 
-                    actualChar = fullString[count];
+                    if (String.IsNullOrEmpty(fullString)) notEOF = false;
+                    else actualChar = fullString[count];
+
 
                     while (notEOF)
                     {
-                        while ((actualChar == '{' || actualChar == ' ') && notEOF)
+                        while ((actualChar == '{' || actualChar == ' ' || actualChar == '/') && notEOF)
                         {
                             if (actualChar == '{')
                             {
@@ -49,7 +136,27 @@ namespace LexicoConsole
                                 readCaracter();
                             }
 
-                            while (actualChar == ' ')
+                            if (actualChar == '/' && notEOF)
+                            {
+                                readCaracter();
+                                if (actualChar == '*' && notEOF)
+                                {
+                                    readCaracter();
+
+                                    while (actualChar != '*' && notEOF)
+                                    {
+                                        readCaracter();
+                                    }
+
+                                    if (actualChar == '/') { }
+                                } else
+                                {
+                                    tokenList.Add(new Token("ERRO", "ERRO", true));
+                                }
+                            }
+
+
+                            while (actualChar == ' ' && notEOF)
                             {
                                 readCaracter();
                             }
@@ -67,25 +174,28 @@ namespace LexicoConsole
                         }
                     }
 
-                    Token lastToken = tokenList[tokenList.Count-1];
-                    if (lastToken.getIsError())
+                    if (tokenList.Count != 0)
                     {
-                        break;
+                        Token lastToken = tokenList[tokenList.Count - 1];
+                        if (lastToken.getIsError())
+                        {
+                            break;
+                        }
                     }
                 }
+                */
 
-
-                foreach (Token t in tokenList)
-                {
-                    if (!t.getIsError())
-                    {
-                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbol(), t.getLexem());
-                    }
-                    else
-                    {
-                        Console.WriteLine("Erro na linha {0}\n", lineCount);
-                    }
-                }
+                //foreach (Token t in tokenList)
+                //{
+                //    if (!t.getIsError())
+                //    {
+                //        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbol(), t.getLexem());
+                //    }
+                //    else
+                //    {
+                //        Console.WriteLine("Erro na linha {0}\n", lineCount);
+                //    }
+                //}
             }
             catch (IOException)
             {
@@ -103,6 +213,13 @@ namespace LexicoConsole
             {
                 count++;
                 actualChar = fullString[count];
+
+                if (actualChar == '\n')
+                {
+                    lineCount++;
+                    count++;
+                    actualChar = fullString[count];
+                }
             }
         }
 
@@ -193,7 +310,7 @@ namespace LexicoConsole
             string id = actualChar.ToString();
             readCaracter();
 
-            while ((isLetter() || isDigit() || id.Equals("_")) && notEOF)
+            while ((isLetter() || isDigit() || actualChar.Equals("_")) && notEOF)
             {
                 id += actualChar.ToString();
                 readCaracter();
@@ -278,15 +395,15 @@ namespace LexicoConsole
             switch (relacional)
             {
                 case "<":
-                    if (actualChar.Equals("="))
+                    if (caracter.Equals("="))
                     {
                         readCaracter();
                         return new Token("smenorig", relacional + caracter);
-                    } 
+                    }
                     else return new Token("smenor", relacional);
 
                 case ">":
-                    if (actualChar.Equals("="))
+                    if (caracter.Equals("="))
                     {
                         readCaracter();
                         return new Token("smaiorig", relacional + caracter);
@@ -294,7 +411,7 @@ namespace LexicoConsole
                     else return new Token("smaior", relacional);
 
                 case "!":
-                    if (actualChar.Equals("="))
+                    if (caracter.Equals("="))
                     {
                         readCaracter();
                         return new Token("sdif", relacional + caracter);

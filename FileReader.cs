@@ -12,7 +12,7 @@ namespace LexicoConsole
 
         }
 
-        public string[] readFile()
+        public string readFile()
         {
             string filePath, fileName;
             Console.Write("Informe o caminho do arquivo: ");
@@ -25,7 +25,7 @@ namespace LexicoConsole
             string fullPath = filePath + '\\' + fileName;
             Console.WriteLine("Full Path: {0}\n", fullPath);
 
-            return File.ReadAllLines(fullPath);
+            return File.ReadAllText(fullPath).Replace("\r\n", " \n");
         }
     }
 }
