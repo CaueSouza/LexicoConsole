@@ -1,57 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
 
 namespace LexicoConsole
 {
-    class Program
+    class Lexico
     {
-        private static char caracterAtual = ' ';
-        private static int cont = 0;
+        private static char actualChar = ' ';
+        private static int count = 0;
         private static string fullString = "";
-        private static List<Token> listaTokens = new List<Token>();
+        private static List<Token> tokenList = new List<Token>();
         private static bool notEOF = true;
+        private static FileReader fileReader = new FileReader();
 
         static void Main()
         {
-            string filePath, fileName;
-            Console.Write("Informe o caminho do arquivo: ");
-            filePath = Console.ReadLine();
-            Console.Write("Informe o nome do arquivo: ");
-            fileName = Console.ReadLine();
-
-            Console.WriteLine("Path: {0}\nName: {1}\n", filePath, fileName);
-
-            string fullPath = filePath + '\\' + fileName;
-            Console.WriteLine("Full Path: {0}\n", fullPath);
-
-            readFile(fullPath);
+            executeLexico();
         }
 
-        private static void readFile(String fullPath)
+        private static void executeLexico()
         {
             try
             {
-                string[] lines = File.ReadAllLines(fullPath);
+                string[] lines = fileReader.readFile();
+
                 int lineCount = 0;
 
                 foreach (string line in lines)
                 {
                     fullString = line;
-                    cont = 0;
+                    count = 0;
                     notEOF = true;
                     lineCount++;
 
-                    caracterAtual = fullString[cont];
+                    actualChar = fullString[count];
 
                     while (notEOF)
                     {
-                        while ((caracterAtual == '{' || caracterAtual == ' ') && notEOF)
+                        while ((actualChar == '{' || actualChar == ' ') && notEOF)
                         {
-                            if (caracterAtual == '{')
+                            if (actualChar == '{')
                             {
-                                while (caracterAtual != '}' && notEOF)
+                                while (actualChar != '}' && notEOF)
                                 {
                                     readCaracter();
                                 }
@@ -59,7 +49,7 @@ namespace LexicoConsole
                                 readCaracter();
                             }
 
-                            while (caracterAtual == ' ')
+                            while (actualChar == ' ')
                             {
                                 readCaracter();
                             }
@@ -68,7 +58,7 @@ namespace LexicoConsole
                         if (notEOF)
                         {
                             Token token = readToken();
-                            listaTokens.Add(token);
+                            tokenList.Add(token);
 
                             if (token.getIsError())
                             {
@@ -77,7 +67,7 @@ namespace LexicoConsole
                         }
                     }
 
-                    Token lastToken = listaTokens[listaTokens.Count-1];
+                    Token lastToken = tokenList[tokenList.Count-1];
                     if (lastToken.getIsError())
                     {
                         break;
@@ -85,11 +75,11 @@ namespace LexicoConsole
                 }
 
 
-                foreach (Token t in listaTokens)
+                foreach (Token t in tokenList)
                 {
                     if (!t.getIsError())
                     {
-                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbolo(), t.getLexema());
+                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbol(), t.getLexem());
                     }
                     else
                     {
@@ -97,7 +87,7 @@ namespace LexicoConsole
                     }
                 }
             }
-            catch (IOException e)
+            catch (IOException)
             {
                 Console.WriteLine("Impossivel ler o arquivo");
             }
@@ -105,50 +95,50 @@ namespace LexicoConsole
 
         private static void readCaracter()
         {
-            if (cont == fullString.Length - 1)
+            if (count == fullString.Length - 1)
             {
                 notEOF = false;
             }
             else
             {
-                cont++;
-                caracterAtual = fullString[cont];
+                count++;
+                actualChar = fullString[count];
             }
         }
 
         private static bool isDigit()
         {
-            if (caracterAtual >= 48 && caracterAtual <= 57) return true;
+            if (actualChar >= 48 && actualChar <= 57) return true;
             else return false;
         }
 
         private static bool isLetter()
         {
-            if ((caracterAtual >= 65 && caracterAtual <= 90) || (caracterAtual >= 97 && caracterAtual <= 122)) return true;
+            if ((actualChar >= 65 && actualChar <= 90) || (actualChar >= 97 && actualChar <= 122)) return true;
             else return false;
         }
 
         private static bool isAssignment()
         {
-            if (caracterAtual == ':') return true;
+            if (actualChar == ':') return true;
             else return false;
         }
 
         private static bool isArithmetic()
         {
-            if (caracterAtual == '+' || caracterAtual == '-' || caracterAtual == '*') return true;
+            if (actualChar == '+' || actualChar == '-' || actualChar == '*') return true;
             else return false;
         }
 
         private static bool isRelational()
         {
-            if (caracterAtual == '<' || caracterAtual == '>' || caracterAtual == '=' || caracterAtual == '!') return true;
+            if (actualChar == '<' || actualChar == '>' || actualChar == '=' || actualChar == '!') return true;
             else return false;
         }
 
         private static bool isPunctuation()
         {
-            if (caracterAtual == ';' || caracterAtual == ',' || caracterAtual == '(' || caracterAtual == ')' || caracterAtual == '.') return true;
+            if (actualChar == ';' || actualChar == ',' || actualChar == '(' || actualChar == ')' || actualChar == '.') return true;
             else return false;
         }
 
@@ -186,12 +176,12 @@ namespace LexicoConsole
 
         private static Token treatDigit()
         {
-            string num = caracterAtual.ToString();
+            string num = actualChar.ToString();
             readCaracter();
 
             while (isDigit() && notEOF)
             {
-                num += caracterAtual.ToString();
+                num += actualChar.ToString();
                 readCaracter();
             }
 
@@ -200,16 +190,16 @@ namespace LexicoConsole
 
         private static Token treatIdentifierAndReservedWord()
         {
-            string id = caracterAtual.ToString();
+            string id = actualChar.ToString();
             readCaracter();
 
             while ((isLetter() || isDigit() || id.Equals("_")) && notEOF)
             {
-                id += caracterAtual.ToString();
+                id += actualChar.ToString();
                 readCaracter();
             }
 
-            string simbolo;
+            string simbol;
 
             switch (id)
             {
@@ -234,24 +224,24 @@ namespace LexicoConsole
                 case "e":
                 case "ou":
                 case "nao":
-                    simbolo = "s" + id;
+                    simbol = "s" + id;
                     break;
                 default:
-                    simbolo = "sidentificador";
+                    simbol = "sidentificador";
                     break;
             }
 
-            return new Token(simbolo, id);
+            return new Token(simbol, id);
         }
 
         private static Token treatAssignment()
         {
-            string assignment = caracterAtual.ToString();
+            string assignment = actualChar.ToString();
             readCaracter();
 
-            if (caracterAtual.ToString().Equals("="))
+            if (actualChar.ToString().Equals("="))
             {
-                string caracter = caracterAtual.ToString();
+                string caracter = actualChar.ToString();
                 readCaracter();
                 return new Token("satribuicao", assignment + caracter);
             }
@@ -263,7 +253,7 @@ namespace LexicoConsole
 
         private static Token treatArithmetic()
         {
-            string aritmetico = caracterAtual.ToString();
+            string aritmetico = actualChar.ToString();
             readCaracter();
 
             switch (aritmetico)
@@ -281,14 +271,14 @@ namespace LexicoConsole
 
         private static Token treatRelational()
         {
-            string relacional = caracterAtual.ToString();
+            string relacional = actualChar.ToString();
             readCaracter();
-            string caracter = caracterAtual.ToString();
+            string caracter = actualChar.ToString();
 
             switch (relacional)
             {
                 case "<":
-                    if (caracterAtual.Equals("="))
+                    if (actualChar.Equals("="))
                     {
                         readCaracter();
                         return new Token("smenorig", relacional + caracter);
@@ -296,7 +286,7 @@ namespace LexicoConsole
                     else return new Token("smenor", relacional);
 
                 case ">":
-                    if (caracterAtual.Equals("="))
+                    if (actualChar.Equals("="))
                     {
                         readCaracter();
                         return new Token("smaiorig", relacional + caracter);
@@ -304,7 +294,7 @@ namespace LexicoConsole
                     else return new Token("smaior", relacional);
 
                 case "!":
-                    if (caracterAtual.Equals("="))
+                    if (actualChar.Equals("="))
                     {
                         readCaracter();
                         return new Token("sdif", relacional + caracter);
@@ -321,7 +311,7 @@ namespace LexicoConsole
 
         private static Token treatPunctuation()
         {
-            string punctuation = caracterAtual.ToString();
+            string punctuation = actualChar.ToString();
             string simbolo = "";
 
             switch (punctuation)

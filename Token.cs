@@ -6,27 +6,27 @@ namespace LexicoConsole
 {
     class Token
     {
-        private String simbolo;
-        private String lexema;
+        private String simbol;
+        private String lexem;
         private bool isError;
 
-        public Token(string simbolo, string lexema)
+        public Token(string simbol, string lexem)
         {
-            this.simbolo = simbolo;
-            this.lexema = lexema;
+            this.simbol = simbol;
+            this.lexem = lexem;
             this.isError = false;
         }
 
-        public Token(string simbolo, string lexema, bool isError)
+        public Token(string simbol, string lexem, bool isError)
         {
-            this.simbolo = simbolo;
-            this.lexema = lexema;
+            this.simbol = simbol;
+            this.lexem = lexem;
             this.isError = true;
         }
 
-        public string getSimbolo() { return simbolo; }
+        public string getSimbol() { return simbol; }
 
-        public string getLexema() { return lexema; }
+        public string getLexem() { return lexem; }
 
         public bool getIsError() { return isError; }
     }
