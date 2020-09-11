@@ -60,22 +60,31 @@ namespace LexicoConsole
                                         readCaracter();
                                     }
 
-                                    readCaracter();
-                                    if (actualChar == '/')
+                                    if (notEOF)
                                     {
                                         readCaracter();
-                                        endedComment = false;
+
+                                        if (notEOF)
+                                        {
+                                            if (actualChar == '/')
+                                            {
+                                                readCaracter();
+                                                endedComment = false;
+                                            }
+                                            else
+                                            {
+                                                readCaracter();
+                                            }
+                                        }
+                                        else createErrorToken();
                                     }
-                                    else
-                                    {
-                                        readCaracter();
-                                    }
+                                    else createErrorToken();
                                 }
                             }
                             else
                             {
                                 notEOF = false;
-                                tokenList.Add(new Token("ERRO", "ERRO", true));
+                                createErrorToken();
                             }
                         }
 
@@ -110,92 +119,6 @@ namespace LexicoConsole
                         Console.WriteLine("Erro na linha {0}\n", lineCount);
                     }
                 }
-
-                /*foreach (string line in lines)
-                {
-                    fullString = line;
-                    
-                    notEOF = true;
-                    lineCount++;
-
-                    if (String.IsNullOrEmpty(fullString)) notEOF = false;
-                    else actualChar = fullString[count];
-
-
-                    while (notEOF)
-                    {
-                        while ((actualChar == '{' || actualChar == ' ' || actualChar == '/') && notEOF)
-                        {
-                            if (actualChar == '{')
-                            {
-                                while (actualChar != '}' && notEOF)
-                                {
-                                    readCaracter();
-                                }
-
-                                readCaracter();
-                            }
-
-                            if (actualChar == '/' && notEOF)
-                            {
-                                readCaracter();
-                                if (actualChar == '*' && notEOF)
-                                {
-                                    readCaracter();
-
-                                    while (actualChar != '*' && notEOF)
-                                    {
-                                        readCaracter();
-                                    }
-
-                                    if (actualChar == '/') { }
-                                } else
-                                {
-                                    tokenList.Add(new Token("ERRO", "ERRO", true));
-                                }
-                            }
-
-
-                            while (actualChar == ' ' && notEOF)
-                            {
-                                readCaracter();
-                            }
-                        }
-
-                        if (notEOF)
-                        {
-                            Token token = readToken();
-                            tokenList.Add(token);
-
-                            if (token.getIsError())
-                            {
-                                break;
-                            }
-                        }
-                    }
-
-                    if (tokenList.Count != 0)
-                    {
-                        Token lastToken = tokenList[tokenList.Count - 1];
-                        if (lastToken.getIsError())
-                        {
-                            break;
-                        }
-                    }
-                }
-                */
-
-                //foreach (Token t in tokenList)
-                //{
-                //    if (!t.getIsError())
-                //    {
-                //        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbol(), t.getLexem());
-                //    }
-                //    else
-                //    {
-                //        Console.WriteLine("Erro na linha {0}\n", lineCount);
-                //    }
-                //}
             }
             catch (IOException)
             {
@@ -221,6 +144,11 @@ namespace LexicoConsole
                     actualChar = fullString[count];
                 }
             }
+        }
+
+        private static void createErrorToken()
+        {
+            tokenList.Add(new Token("ERRO", "ERRO", true));
         }
 
         private static bool isDigit()
