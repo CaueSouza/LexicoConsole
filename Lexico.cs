@@ -36,10 +36,14 @@ namespace LexicoConsole
                     {
                         if (actualChar == '{')
                         {
+                            int lineCommentStarted = lineCount;
+
                             while (actualChar != '}' && notEOF)
                             {
                                 readCaracter();
                             }
+
+                            if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted);
 
                             readCaracter();
                         }
@@ -50,6 +54,8 @@ namespace LexicoConsole
                             readCaracter();
                             if (actualChar == '*' && notEOF)
                             {
+                                int lineCommentStarted = lineCount;
+
                                 readCaracter();
                                 bool endedComment = true;
 
@@ -76,15 +82,15 @@ namespace LexicoConsole
                                                 readCaracter();
                                             }
                                         }
-                                        else createErrorToken();
+                                        else createErrorToken(lineCommentStarted);
                                     }
-                                    else createErrorToken();
+                                    else createErrorToken(lineCommentStarted);
                                 }
                             }
                             else
                             {
                                 notEOF = false;
-                                createErrorToken();
+                                createErrorToken(lineCount);
                             }
                         }
 
@@ -110,13 +116,13 @@ namespace LexicoConsole
 
                 foreach (Token t in tokenList)
                 {
-                    if (!t.getIsError())
+                    if (t.getIsError())
                     {
-                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbol(), t.getLexem());
+                        Console.WriteLine("Erro na linha {0}\n", t.getErrorLine());
                     }
                     else
                     {
-                        Console.WriteLine("Erro na linha {0}\n", lineCount);
+                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbol(), t.getLexem());
                     }
                 }
             }
@@ -140,15 +146,22 @@ namespace LexicoConsole
                 if (actualChar == '\n')
                 {
                     lineCount++;
-                    count++;
-                    actualChar = fullString[count];
+                    if (count != fullString.Length - 1)
+                    {
+                        count++;
+                        actualChar = fullString[count];
+                    }
+                    else
+                    {
+                        notEOF = false;
+                    }
                 }
             }
         }
 
-        private static void createErrorToken()
+        private static void createErrorToken(int errorLine)
         {
-            tokenList.Add(new Token("ERRO", "ERRO", true));
+            tokenList.Add(new Token(errorLine));
         }
 
         private static bool isDigit()
@@ -215,7 +228,7 @@ namespace LexicoConsole
             }
             else
             {
-                return new Token("ERRO", "ERRO", true);
+                return new Token(lineCount);
             }
         }
 
@@ -310,7 +323,7 @@ namespace LexicoConsole
                 case "*":
                     return new Token("smult", aritmetico);
                 default:
-                    return new Token("ERROR", "ERROR", true);
+                    return new Token(lineCount);
             }
         }
 
@@ -344,13 +357,13 @@ namespace LexicoConsole
                         readCaracter();
                         return new Token("sdif", relacional + caracter);
                     }
-                    else return new Token("ERRO", "ERRO", true);
+                    else return new Token(lineCount);
 
                 case "=":
                     return new Token("sig", relacional);
 
                 default:
-                    return new Token("ERRO", "ERRO", true);
+                    return new Token(lineCount);
             }
         }
 

@@ -9,19 +9,19 @@ namespace LexicoConsole
         private String simbol;
         private String lexem;
         private bool isError;
+        private int errorLine;
 
         public Token(string simbol, string lexem)
         {
             this.simbol = simbol;
             this.lexem = lexem;
-            this.isError = false;
+            isError = false;
         }
 
-        public Token(string simbol, string lexem, bool isError)
+        public Token(int errorLine)
         {
-            this.simbol = simbol;
-            this.lexem = lexem;
-            this.isError = true;
+            isError = true;
+            this.errorLine = errorLine;
         }
 
         public string getSimbol() { return simbol; }
@@ -29,5 +29,7 @@ namespace LexicoConsole
         public string getLexem() { return lexem; }
 
         public bool getIsError() { return isError; }
+
+        public int getErrorLine() { return errorLine; }
     }
 }
