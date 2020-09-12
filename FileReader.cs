@@ -20,8 +20,6 @@ namespace LexicoConsole
             Console.Write("Informe o nome do arquivo: ");
             fileName = Console.ReadLine();
 
-            Console.WriteLine("Path: {0}\nName: {1}\n", filePath, fileName);
-
             string fullPath = filePath + '\\' + fileName;
             Console.WriteLine("Full Path: {0}\n", fullPath);
 
