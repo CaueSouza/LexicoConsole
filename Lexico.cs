@@ -166,14 +166,12 @@ namespace LexicoConsole
 
         private static bool isDigit()
         {
-            if (actualChar >= 48 && actualChar <= 57) return true;
-            else return false;
+            return Char.IsDigit(actualChar);
         }
 
         private static bool isLetter()
         {
-            if ((actualChar >= 65 && actualChar <= 90) || (actualChar >= 97 && actualChar <= 122)) return true;
-            else return false;
+            return Char.IsLetter(actualChar);
         }
 
         private static bool isAssignment()

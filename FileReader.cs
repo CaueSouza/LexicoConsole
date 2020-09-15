@@ -23,7 +23,7 @@ namespace LexicoConsole
             string fullPath = filePath + '\\' + fileName;
             Console.WriteLine("Full Path: {0}\n", fullPath);
 
-            return File.ReadAllText(fullPath).Replace("\r\n", " \n");
+            return File.ReadAllText(fullPath).Replace("\t", "").Replace("\r\n", " \n");
         }
     }
 }
