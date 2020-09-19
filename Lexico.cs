@@ -43,7 +43,7 @@ namespace LexicoConsole
                                 readCaracter();
                             }
 
-                            if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted);
+                            if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted, 1);
 
                             readCaracter();
                         }
@@ -82,15 +82,15 @@ namespace LexicoConsole
                                                 readCaracter();
                                             }
                                         }
-                                        else createErrorToken(lineCommentStarted);
+                                        else createErrorToken(lineCommentStarted, 1);
                                     }
-                                    else createErrorToken(lineCommentStarted);
+                                    else createErrorToken(lineCommentStarted, 1);
                                 }
                             }
                             else
                             {
                                 notEOF = false;
-                                createErrorToken(lineCount);
+                                createErrorToken(lineCount, 2);
                             }
                         }
 
@@ -118,11 +118,12 @@ namespace LexicoConsole
                 {
                     if (t.getIsError())
                     {
-                        Console.WriteLine("Erro na linha {0}\n", t.getErrorLine());
+                        Console.WriteLine("Erro na linha {0}", t.getLine());
+                        treatErrorType(t.getErrorType());
                     }
                     else
                     {
-                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\n", t.getSimbol(), t.getLexem());
+                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\nLinha-> {2}\n", t.getSimbol(), t.getLexem(), t.getLine());
                     }
                 }
             }
@@ -159,9 +160,25 @@ namespace LexicoConsole
             }
         }
 
-        private static void createErrorToken(int errorLine)
+        private static void createErrorToken(int errorLine, int errorType)
         {
-            tokenList.Add(new Token(errorLine));
+            tokenList.Add(new Token(errorLine, errorType));
+        }
+
+        private static void treatErrorType(int errorType)
+        {
+            switch (errorType)
+            {
+                case 1:
+                    Console.WriteLine("Comentario aberto sem fechamento\n");
+                    break;
+                case 2:
+                    Console.WriteLine("Caracter Invalido\n");
+                    break;
+                default:
+                    Console.WriteLine("Erro nao identificado\n");
+                    break;
+            }
         }
 
         private static bool isDigit()
@@ -176,26 +193,22 @@ namespace LexicoConsole
 
         private static bool isAssignment()
         {
-            if (actualChar == ':') return true;
-            else return false;
+            return actualChar == ':';
         }
 
         private static bool isArithmetic()
         {
-            if (actualChar == '+' || actualChar == '-' || actualChar == '*') return true;
-            else return false;
+            return actualChar == '+' || actualChar == '-' || actualChar == '*';
         }
 
         private static bool isRelational()
         {
-            if (actualChar == '<' || actualChar == '>' || actualChar == '=' || actualChar == '!') return true;
-            else return false;
+            return actualChar == '<' || actualChar == '>' || actualChar == '=' || actualChar == '!';
         }
 
         private static bool isPunctuation()
         {
-            if (actualChar == ';' || actualChar == ',' || actualChar == '(' || actualChar == ')' || actualChar == '.') return true;
-            else return false;
+            return actualChar == ';' || actualChar == ',' || actualChar == '(' || actualChar == ')' || actualChar == '.';
         }
 
         private static Token readToken()
@@ -226,7 +239,7 @@ namespace LexicoConsole
             }
             else
             {
-                return new Token(lineCount);
+                return new Token(lineCount, 2);
             }
         }
 
@@ -241,7 +254,7 @@ namespace LexicoConsole
                 readCaracter();
             }
 
-            return new Token("snumero", num);
+            return new Token("snumero", num, lineCount);
         }
 
         private static Token treatIdentifierAndReservedWord()
@@ -287,7 +300,7 @@ namespace LexicoConsole
                     break;
             }
 
-            return new Token(simbol, id);
+            return new Token(simbol, id, lineCount);
         }
 
         private static Token treatAssignment()
@@ -299,11 +312,11 @@ namespace LexicoConsole
             {
                 string caracter = actualChar.ToString();
                 readCaracter();
-                return new Token("satribuicao", assignment + caracter);
+                return new Token("satribuicao", assignment + caracter, lineCount);
             }
             else
             {
-                return new Token("sdoispontos", assignment);
+                return new Token("sdoispontos", assignment, lineCount);
             }
         }
 
@@ -315,13 +328,13 @@ namespace LexicoConsole
             switch (aritmetico)
             {
                 case "+":
-                    return new Token("smais", aritmetico);
+                    return new Token("smais", aritmetico, lineCount);
                 case "-":
-                    return new Token("smenos", aritmetico);
+                    return new Token("smenos", aritmetico, lineCount);
                 case "*":
-                    return new Token("smult", aritmetico);
+                    return new Token("smult", aritmetico, lineCount);
                 default:
-                    return new Token(lineCount);
+                    return new Token(lineCount, 3);
             }
         }
 
@@ -337,31 +350,31 @@ namespace LexicoConsole
                     if (caracter.Equals("="))
                     {
                         readCaracter();
-                        return new Token("smenorig", relacional + caracter);
+                        return new Token("smenorig", relacional + caracter, lineCount);
                     }
-                    else return new Token("smenor", relacional);
+                    else return new Token("smenor", relacional, lineCount);
 
                 case ">":
                     if (caracter.Equals("="))
                     {
                         readCaracter();
-                        return new Token("smaiorig", relacional + caracter);
+                        return new Token("smaiorig", relacional + caracter, lineCount);
                     }
-                    else return new Token("smaior", relacional);
+                    else return new Token("smaior", relacional, lineCount);
 
                 case "!":
                     if (caracter.Equals("="))
                     {
                         readCaracter();
-                        return new Token("sdif", relacional + caracter);
+                        return new Token("sdif", relacional + caracter, lineCount);
                     }
-                    else return new Token(lineCount);
+                    else return new Token(lineCount, 2);
 
                 case "=":
-                    return new Token("sig", relacional);
+                    return new Token("sig", relacional, lineCount);
 
                 default:
-                    return new Token(lineCount);
+                    return new Token(lineCount, 3);
             }
         }
 
@@ -390,7 +403,7 @@ namespace LexicoConsole
             }
 
             readCaracter();
-            return new Token(simbolo, punctuation);
+            return new Token(simbolo, punctuation, lineCount);
         }
     }
 }
